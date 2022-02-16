@@ -1,0 +1,193 @@
+#!/usr/local/bin/node
+const tar = require('tar-stream');
+const { ungzip } = require('node-gzip');
+const https = require('https');
+const path = require('path');
+const fs = require('fs');
+const figlet = require('figlet');
+const toml = require('@iarna/toml');
+const exec = require('child_process').exec;
+const clone = require('git-clone/promise');
+
+const extract = tar.extract();
+
+const main = async () => {
+    try {
+        // 1. GET ARGS FROM COMMAND LINE
+        const layers_dir = process.argv[2];
+        const env_dir = process.argv[3] + "/env";
+        const plan_path = process.argv[4];
+        const work = "/workspace"
+        //const work = "/Users/johnwilson/code/node-detect/working"
+
+        // 2. CREATE THE LAYER DIRECTORY
+        getBigText("Creating JDK Layer");
+        const javaLayorConfig = { launch: true, build: true, cache: false, metadata: { version: "1.8.0_222", url: "https://cdn.azul.com/zulu/bin/zulu8.40.0.25-ca-jdk8.0.222-linux_musl_x64.tar.gz" } };
+        const jdkdir =  createDirectoryAndFile(`${layers_dir}/jdk`);
+        createDirectoryAndFile(`${layers_dir}`, `jdk.toml`, toml.stringify(javaLayorConfig));
+
+        // 3. ADD THE JAVA HOME TO THE ENVIROMENT DIRECTORY
+        getBigText("Add the Java Home");
+        const env = createDirectoryAndFile(`${jdkdir}/env`, "JAVA_HOME", jdkdir);
+        if (process.env.LD_LIBRARY_PATH) {
+            createDirectoryAndFile(env,"LD_LIBRARY_PATH", "${JAVA_HOME}/jre/lib/amd64/server");
+        } else {
+            createDirectoryAndFile(env, "LD_LIBRARY_PATH", "${JAVA_HOME}/jre/lib/amd64/server:${LD_LIBRARY_PATH}");
+        }        
+
+        //5. CREATE THE WRAPPER  DIRECTORY
+        getBigText("Creating Web Wrapper");
+        const webapp = createDirectoryAndFile(`${work}/webapp`);
+
+        // 6. CLONE THE GIT REPO WITH THE WEB WRAPPER
+        getBigText("Clone Web Wrapper");
+        await clone("https://github.com/pivotal-Jay-Wilson/arnoldc-webapp.git", webapp);
+
+        // 7. DOWNLOAD JDK
+        getBigText("Download JDK");
+        await downloadUnzipFile("https://cdn.azul.com/zulu/bin/zulu8.40.0.25-ca-jdk8.0.222-linux_musl_x64.tar.gz", jdkdir);
+
+        // 8. DOWNLOAD THE COMPILER
+        getBigText("Download the Compiler");
+        await downloadFile("https://lhartikk.github.io/ArnoldC.jar", work);
+
+        // 7. CREATE profile.d
+        getBigText("Create profile.d");
+        const profiled = `
+    export JAVA_HOME=${jdkdir}
+    if [[ -z \$LD_LIBRARY_PATH ]]; then
+      export LD_LIBRARY_PATH="\$JAVA_HOME/jre/lib/amd64/server"
+    else
+      export LD_LIBRARY_PATH="\$JAVA_HOME/jre/lib/amd64/server:\${LD_LIBRARY_PATH}"
+    fi
+    `
+        createDirectoryAndFile(`${jdkdir}/profile.d`, `jdk.sh`, profiled);
+
+        //  8. COMPILE THE ArnoldC FILES AND ADD THEM TO THE LAUNCH TOML 
+        getBigText("Compile ArnoldC");
+        let processes = [];
+        let currentDirs = fs.readdirSync(".");
+        let acFiles = currentDirs.filter(file => /^.*\.arnoldc$/.test(file));
+        for (const acFile of acFiles) {
+            await compile(`java -jar ArnoldC.jar ${acFile}`);
+            const action = acFile.replace(".arnoldc", "")
+            processes.push({ type: action, command: "java", args: [action], direct: true });
+            fs.copyFileSync(`${action}.class`, `${webapp}/${action}.class`);
+        }
+        processes.push({ type: "web", command: `node`, args: [`${webapp}/app.js`], default: true, direct: true });
+        processes.push({ type: "version", command: "java", args: ["-version"], direct: true });
+
+        const launch = toml.stringify({ processes });
+        createDirectoryAndFile(layers_dir, "launch.toml", launch );
+    } catch (err) {
+        console.error(err);
+        process.exit(100);
+    }
+}
+
+// ##############################
+// ### HELPER FUNCTIONS
+// ##############################
+const getBigText = text => {
+    console.log("#".repeat(30));
+    console.log((figlet.textSync(text, { font: 'Elite' })));
+    console.log("#".repeat(30) + '\n');
+}
+
+const compile = async (command) => {
+//async function compile(command) {
+    return new Promise((resolve, reject) => {
+        child = exec(command,
+            function (error, stdout, stderr) {
+                console.log(`stdout: ${stdout} stderr:  ${stderr}`);
+                if (error !== null) {
+                    console.log('exec error: ' + error);
+                    reject(error);
+                }
+                resolve();
+            });
+    });
+}
+
+const downloadUnzipFile = async (file, directory) => {
+//async function (file, directory) {
+    return new Promise((resolve, reject) => {
+        try {
+            const request = https.get(file, function (res) {
+                var data = [];
+                res.on('data', function (chunk) {
+                    data.push(chunk);
+                }).on('end', function () {
+                    const buffer = Buffer.concat(data);
+                    ungzip(buffer).then((decompressed) => {
+                        const stream = require('stream');
+                        const bufferStream = new stream.PassThrough();
+                        bufferStream.end(decompressed);
+                        bufferStream.pipe(extract);
+                        extract.on('entry', function (header, stream, next) {
+                            let data = [];
+                            stream.on('data', chunk => data.push(chunk));
+                            stream.on('end', () => {
+                                const buffer = Buffer.concat(data);
+                                let name = path.join(directory, header.name);
+                                filename = file.substring(file.lastIndexOf("/") + 1, file.indexOf("tar", file.lastIndexOf("/")) - 1);
+                                name = name.replace(`${filename}/`, "");
+                                switch (header.type) {
+                                    case 'directory':
+                                        if (!fs.existsSync(name)) {
+                                            fs.mkdirSync(name, { mode: header.mode });
+                                        }
+                                        break;
+                                    case 'file':
+                                        fs.writeFileSync(name, buffer, { mode: header.mode });
+                                        break;
+                                    default:
+                                        break;
+                                }
+                                data = []
+                                next()
+                            });
+                            stream.resume()
+                        });
+                        extract.on('finish', function () {
+                            resolve();
+                        });
+                    });
+                });
+            });
+        } catch (error) {
+            reject(error);
+        }
+    });
+}
+
+const downloadFile = async (file, directory) => {
+//async function downloadFile(file, directory) {
+    return new Promise((resolve, reject) => {
+        const request = https.get(file, function (res) {
+            var data = [];
+            res.on('data', function (chunk) {
+                data.push(chunk);
+            }).on('end', function () {
+                var buffer = Buffer.concat(data);
+                let filename = file.substring(file.lastIndexOf("/") + 1, file.length);
+                const nm = path.join(directory, filename);
+                fs.writeFileSync(nm, buffer, { mode: "755" });
+                resolve();
+            });
+        });
+    });
+}
+
+const createDirectoryAndFile =  (directory, filename, fileData) => {
+//function createDirectoryAndFile(directory, filename, fileData) {
+    if (!fs.existsSync(directory)) {
+        fs.mkdirSync(directory);
+    }
+    if (filename) {
+        fs.writeFileSync(`${directory}/${filename}`, fileData);
+    }
+    return directory;
+}
+
+main();

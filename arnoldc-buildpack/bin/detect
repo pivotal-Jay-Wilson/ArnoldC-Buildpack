@@ -1,0 +1,19 @@
+#!/usr/local/bin/node
+const chalk = require('chalk');
+const figlet = require('figlet');
+const fs = require('fs');
+console.log(process.env);
+const getBigText = text => figlet.textSync(text, {font: 'Elite'});
+try {
+    let dirs = fs.readdirSync(".");
+    let file = dirs.find(file => /^.*\.arnoldc$/.test(file));
+    if(!file){
+        throw new Error("File Not Found");   
+    } else {
+        console.error(chalk.bgGreen(getBigText("Success!!!")));    
+    }
+} catch (err) {
+    console.error(chalk.bgRed(getBigText(err)));
+    process.exit(100);
+}
+

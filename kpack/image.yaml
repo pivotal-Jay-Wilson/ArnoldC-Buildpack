@@ -1,0 +1,14 @@
+apiVersion: kpack.io/v1alpha1
+kind: Image
+metadata:
+  name: arnoldc-image
+spec:
+  serviceAccount: harbor-service-account
+  tag: harbor.51.143.61.52.getmoss.site/open/arnoldc-kapp
+  builder:
+    name: arnoldc-builder
+    kind: Builder
+  source:
+    git:
+      url: http://git.51.143.61.52.getmoss.site/gitadmin/arnoldc-kapp.git
+      revision: "485e7ebb1093b827690dcc2d496b3a9e75218074"

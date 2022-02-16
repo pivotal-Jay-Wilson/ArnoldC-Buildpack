@@ -1,0 +1,10 @@
+apiVersion: kpack.io/v1alpha2
+kind: ClusterStack
+metadata:
+  name: base
+spec:
+  id: "dev.jaywilson.stacks.alpine"
+  buildImage:
+    image: "harbor.51.143.61.52.getmoss.site/open/ac-stack-build:alpine"
+  runImage:
+    image: "harbor.51.143.61.52.getmoss.site/open/ac-stack-run:alpine"

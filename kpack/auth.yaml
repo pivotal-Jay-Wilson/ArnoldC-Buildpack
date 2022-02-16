@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: harbor-registry-credentials
+  annotations:
+    kpack.io/docker: https://harbor.51.143.61.52.getmoss.site/v2/
+type: kubernetes.io/basic-auth
+stringData:
+  username: "admin"
+  password: "HarborIsGreat1"
+--- 
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: harbor-service-account
+secrets:
+- name: harbor-registry-credentials
+imagePullSecrets:
+- name: harbor-registry-credentials
