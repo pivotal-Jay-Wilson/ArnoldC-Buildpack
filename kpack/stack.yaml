@@ -5,6 +5,6 @@ metadata:
 spec:
   id: "dev.jaywilson.stacks.alpine"
   buildImage:
-    image: "harbor.51.143.61.52.getmoss.site/open/ac-stack-build:alpine"
+    image: "harbor.52.143.84.12.getmoss.site/open/ac-stack-build:alpine"
   runImage:
-    image: "harbor.51.143.61.52.getmoss.site/open/ac-stack-run:alpine"
+    image: "harbor.52.143.84.12.getmoss.site/open/ac-stack-run:alpine"

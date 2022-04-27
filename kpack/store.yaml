@@ -4,5 +4,5 @@ metadata:
   name: default
 spec:
   sources:
-  - image: harbor.51.143.61.52.getmoss.site/open/arnoldc-buildpack
+  - image: harbor.52.143.84.12.getmoss.site/open/arnoldc-buildpack
   - image: gcr.io/paketo-buildpacks/nginx

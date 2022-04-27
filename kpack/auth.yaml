@@ -3,7 +3,7 @@ kind: Secret
 metadata:
   name: harbor-registry-credentials
   annotations:
-    kpack.io/docker: https://harbor.51.143.61.52.getmoss.site/v2/
+    kpack.io/docker: https://harbor.52.143.84.12.getmoss.site/v2/
 type: kubernetes.io/basic-auth
 stringData:
   username: "admin"

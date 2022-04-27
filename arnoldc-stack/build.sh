@@ -3,7 +3,7 @@ set -e
 
 ID_PREFIX="dev.jaywilson.stacks"
 
-DEFAULT_PREFIX="harbor.${DNS}/open/ac-stack"
+DEFAULT_PREFIX="harbor.${DNS}/library/ac-stack"
 
 
 REPO_PREFIX=${DEFAULT_PREFIX}

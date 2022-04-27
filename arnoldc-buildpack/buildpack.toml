@@ -1,7 +1,7 @@
 api = "0.5"
 
 [buildpack]
-  id = "dev.jaywilson.stacks/open/ac-stack"
+  id = "dev.jaywilson.stacks/library/ac-stack"
   version = "0.0.1"
 
 [[stacks]]

@@ -5,7 +5,7 @@ metadata:
   namespace: default
 spec:
   serviceAccount: harbor-service-account
-  tag: harbor.51.143.61.52.getmoss.site/open/arnoldc-builder:alpine
+  tag: harbor.52.143.84.12.getmoss.site/open/arnoldc-builder:alpine
   stack:
     name: base
     kind: ClusterStack
