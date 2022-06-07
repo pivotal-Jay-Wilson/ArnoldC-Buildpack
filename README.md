@@ -1,5 +1,8 @@
 # ArnoldC-Buildpack
-1. edit .envrc set DNS to private registry
+1. edit .envrc set DNS to private registry or run:
+   ```
+   export DNS="<Docker_Repo>"
+   ```
 2. cd arnoldc-stack
 3. docker login 
 4. run ./build alpine
@@ -12,7 +15,7 @@
 8. run:
     ``` 
     pack config default-builder <Docker_Repo>/arnoldc-builder:alpine
-    ``` 
+    ```
 9.  cd root
 10. run: 
     ```
@@ -37,6 +40,6 @@ curl http://localhost:8080/run/hello
 curl http://localhost:8080/run/count
 ```
 
-# KPACK
+# KPACK - TODO
 1. kubectl apply -f https://github.com/pivotal/kpack/releases/download/v0.5.3/release-0.5.3.yaml
 2. kubectl get pods --namespace kpack --watch
