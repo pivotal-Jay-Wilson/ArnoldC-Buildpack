@@ -1,27 +1,28 @@
 # ArnoldC-Buildpack
-1. edit .envrc set DNS to private registry or run:
+1. Install pack command https://buildpacks.io/docs/tools/pack/
+2. Edit .envrc set DNS to private registry or run:
    ```
    export DNS="<Docker_Repo>"
    ```
-2. cd arnoldc-stack
-3. docker login 
-4. run ./build alpine
-5. cd arnoldc-builder
-6. update builder.toml
-7. run:
+3. cd arnoldc-stack
+4. docker login <Docker_Repo>
+5. run ./build alpine
+6. cd arnoldc-builder
+7. update builder.toml
+8. run:
    ```
    pack builder create <Docker_Repo>/arnoldc-builder:alpine --config ./builder.toml --publish
    ```
-8. run:
+9. run:
     ``` 
     pack config default-builder <Docker_Repo>/arnoldc-builder:alpine
     ```
-9.  cd root
-10. run: 
+10. cd root
+11. run: 
     ```
     pack buildpack package <Docker_Repo>/arnoldc-buildpack --config ./package.toml  --publish
     ``` 
-11.  run: 
+12.  run: 
     ```
     pack build <Docker_Repo>/arnoldc-app --path ./app --buildpack <Docker_Repo>/arnoldc-buildpack --env "NODE_PATH=/usr/local/lib/node_modules"
     ```
