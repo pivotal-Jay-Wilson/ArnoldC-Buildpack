@@ -1,14 +1,18 @@
-apiVersion: kpack.io/v1alpha1
+apiVersion: kpack.io/v1alpha2
 kind: Image
 metadata:
-  name: arnoldc-image
+  name: tutorial-image
+  namespace: default
 spec:
-  serviceAccount: harbor-service-account
-  tag: harbor.52.143.84.12.getmoss.site/open/arnoldc-kapp
+  serviceAccountName: tutorial-service-account
+  tag: us-central1-docker.pkg.dev/playground-s-11-eb170af4/tbs/pc
   builder:
-    name: arnoldc-builder
+    name: my-builder
     kind: Builder
   source:
     git:
-      url: http://git.52.143.84.12.getmoss.site/gitadmin/arnoldc-kapp.git
-      revision: "485e7ebb1093b827690dcc2d496b3a9e75218074"
+      url: https://github.com/spring-projects/spring-petclinic
+      revision: 82cb521d636b282340378d80a6307a08e3d4a4c4
+
+      
+                

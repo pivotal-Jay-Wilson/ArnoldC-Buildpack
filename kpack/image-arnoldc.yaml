@@ -1,0 +1,16 @@
+apiVersion: kpack.io/v1alpha2
+kind: Image
+metadata:
+  name: arnoldc-image
+  namespace: default
+spec:
+  tag: us-central1-docker.pkg.dev/playground-s-11-eb170af4/tbs/arnoldc-kpack:latest
+  serviceAccountName: tutorial-service-account
+  builder:
+    name: arnoldc-builder
+    kind: Builder
+  source:
+    git:
+      url: https://git.52.143.84.12.getmoss.site/gitadmin/arnoldc-kapp
+      revision: 485e7ebb1093b827690dcc2d496b3a9e75218074
+                

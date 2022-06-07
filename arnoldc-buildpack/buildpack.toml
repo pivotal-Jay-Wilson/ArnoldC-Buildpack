@@ -1,7 +1,7 @@
 api = "0.5"
 
 [buildpack]
-  id = "dev.jaywilson.stacks/library/ac-stack"
+  id = "harbor.20.112.44.2.getmoss.site/library"
   version = "0.0.1"
 
 [[stacks]]

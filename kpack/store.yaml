@@ -1,8 +1,0 @@
-apiVersion: kpack.io/v1alpha1
-kind: ClusterStore
-metadata:
-  name: default
-spec:
-  sources:
-  - image: harbor.52.143.84.12.getmoss.site/open/arnoldc-buildpack
-  - image: gcr.io/paketo-buildpacks/nginx

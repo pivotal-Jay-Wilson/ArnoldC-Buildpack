@@ -35,23 +35,23 @@ const main = async () => {
             createDirectoryAndFile(env, "LD_LIBRARY_PATH", "${JAVA_HOME}/jre/lib/amd64/server:${LD_LIBRARY_PATH}");
         }        
 
-        //5. CREATE THE WRAPPER  DIRECTORY
+        //4. CREATE THE WRAPPER  DIRECTORY
         getBigText("Creating Web Wrapper");
         const webapp = createDirectoryAndFile(`${work}/webapp`);
 
-        // 6. CLONE THE GIT REPO WITH THE WEB WRAPPER
+        // 5. CLONE THE GIT REPO WITH THE WEB WRAPPER
         getBigText("Clone Web Wrapper");
         await clone("https://github.com/pivotal-Jay-Wilson/arnoldc-webapp.git", webapp);
 
-        // 7. DOWNLOAD JDK
+        // 6. DOWNLOAD JDK
         getBigText("Download JDK");
         await downloadUnzipFile("https://cdn.azul.com/zulu/bin/zulu8.40.0.25-ca-jdk8.0.222-linux_musl_x64.tar.gz", jdkdir);
 
-        // 8. DOWNLOAD THE COMPILER
+        // 7. DOWNLOAD THE COMPILER
         getBigText("Download the Compiler");
         await downloadFile("https://lhartikk.github.io/ArnoldC.jar", work);
 
-        // 7. CREATE profile.d
+        // 8. CREATE profile.d
         getBigText("Create profile.d");
         const profiled = `
     export JAVA_HOME=${jdkdir}
@@ -63,7 +63,7 @@ const main = async () => {
     `
         createDirectoryAndFile(`${jdkdir}/profile.d`, `jdk.sh`, profiled);
 
-        //  8. COMPILE THE ArnoldC FILES AND ADD THEM TO THE LAUNCH TOML 
+        //  9. COMPILE THE ArnoldC FILES AND ADD THEM TO THE LAUNCH TOML 
         getBigText("Compile ArnoldC");
         let processes = [];
         let currentDirs = fs.readdirSync(".");
